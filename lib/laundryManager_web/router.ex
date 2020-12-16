@@ -20,9 +20,15 @@ defmodule LaundryManagerWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", LaundryManagerWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", LaundryManagerWeb do
+    pipe_through :api
+
+    scope "/laundry" do
+      resources "/kilogram", KilogramLaundryTransactionController, except: [:edit, :new]
+      resources "/unit", UnitLaundryTransactionController, except: [:edit, :new]
+      resources "/types", LaundryTypeController, except: [:edit, :new]
+    end
+  end
 
   # Enables LiveDashboard only for development
   #
