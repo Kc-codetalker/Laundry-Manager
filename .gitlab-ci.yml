@@ -1,0 +1,21 @@
+# This file is a template, and might need editing before it works on your project.
+image: ruby:2.4
+
+before_script:
+  - echo "deb http://toolbelt.heroku.com/ubuntu ./" > /etc/apt/sources.list.d/heroku.list
+  - wget -O- https://toolbelt.heroku.com/apt/release.key | apt-key add -
+  - apt-get update
+  - apt-get install -y heroku-toolbelt
+  - gem install dpl
+
+stages:
+  - deploy
+
+deploy_to_heroku:
+  stage: deploy
+  script:
+    - dpl --provider=heroku --app=$HEROKU_APPNAME --api-key=$HEROKU_APIKEY
+    - export HEROKU_API_KEY=$HEROKU_APIKEY
+    - heroku run "POOL_SIZE=2 mix ecto.migrate" --exit-code --app $HEROKU_APPNAME
+  only:
+    - master
