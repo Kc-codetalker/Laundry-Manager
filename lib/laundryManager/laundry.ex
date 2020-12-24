@@ -7,6 +7,73 @@ defmodule LaundryManager.Laundry do
   alias LaundryManager.Repo
 
   alias LaundryManager.Laundry.KilogramLaundryTransaction
+  alias LaundryManager.Laundry.UnitLaundryTransaction
+  alias LaundryManager.Laundry.LaundryType
+
+
+  defp apply_common_list_filters(query, params) do
+    query
+    |> add_filter_to_list_query(params, "checkInStartDate")
+    |> add_filter_to_list_query(params, "checkInEndDate")
+    |> add_filter_to_list_query(params, "checkOutStartDate")
+    |> add_filter_to_list_query(params, "checkOutEndDate")
+    |> add_filter_to_list_query(params, "laundryTypeName")
+  end
+
+  defp compose_kilo_laundry_list_query(params) do
+    base_query = from t in KilogramLaundryTransaction
+    apply_common_list_filters(base_query, params)
+    |> add_filter_to_list_query(params, "minWeight")
+    |> add_filter_to_list_query(params, "maxWeight")
+    |> add_filter_to_list_query(params, "minPricePerWeight")
+    |> add_filter_to_list_query(params, "maxPricePerWeight")
+  end
+
+  defp compose_unit_laundry_list_query(params) do
+    base_query = from t in UnitLaundryTransaction
+    apply_common_list_filters(base_query, params)
+    |> add_filter_to_list_query(params, "minPieces")
+    |> add_filter_to_list_query(params, "maxPieces")
+    |> add_filter_to_list_query(params, "minPricePerPiece")
+    |> add_filter_to_list_query(params, "maxPricePerPiece")
+  end
+
+  defp add_filter_to_list_query(query, params, filter_name) do
+    with {:ok, filter_value} <- Map.fetch(params, filter_name) do
+      case filter_name do
+        "checkInStartDate" ->
+          from t in query, where: t.checkInDate >= ^filter_value
+        "checkInEndDate" ->
+          from t in query, where: t.checkInDate <= ^filter_value
+        "checkOutStartDate" ->
+          from t in query, where: t.checkOutDate >= ^filter_value
+        "checkOutEndDate" ->
+          from t in query, where: t.checkOutDate <= ^filter_value
+        "laundryTypeName" ->
+          from t in query, where: t.laundryTypeName == ^filter_value
+        "minPricePerWeight" ->
+          from t in query, where: t.pricePerWeight >= ^filter_value
+        "maxPricePerWeight" ->
+          from t in query, where: t.pricePerWeight <= ^filter_value
+        "minWeight" ->
+          from t in query, where: t.weight >= ^filter_value
+        "maxWeight" ->
+          from t in query, where: t.weight <= ^filter_value
+        "minPricePerPiece" ->
+          from t in query, where: t.pricePerPiece >= ^filter_value
+        "maxPricePerPiece" ->
+          from t in query, where: t.pricePerPiece <= ^filter_value
+        "minPieces" ->
+          from t in query, where: t.numPieces >= ^filter_value
+        "maxPieces" ->
+          from t in query, where: t.numPieces <= ^filter_value
+        _ ->
+          query
+      end
+    else
+      _ -> query
+    end
+  end
 
   @doc """
   Returns the list of kilogram_laundry_transactions.
@@ -17,8 +84,8 @@ defmodule LaundryManager.Laundry do
       [%KilogramLaundryTransaction{}, ...]
 
   """
-  def list_kilogram_laundry_transactions do
-    Repo.all(KilogramLaundryTransaction)
+  def list_kilogram_laundry_transactions(attrs \\ %{}) do
+    Repo.all(compose_kilo_laundry_list_query(attrs))
   end
 
   @doc """
@@ -102,8 +169,6 @@ defmodule LaundryManager.Laundry do
     KilogramLaundryTransaction.changeset(kilogram_laundry_transaction, attrs)
   end
 
-  alias LaundryManager.Laundry.UnitLaundryTransaction
-
   @doc """
   Returns the list of unit_laundry_transactions.
 
@@ -113,8 +178,8 @@ defmodule LaundryManager.Laundry do
       [%UnitLaundryTransaction{}, ...]
 
   """
-  def list_unit_laundry_transactions do
-    Repo.all(UnitLaundryTransaction)
+  def list_unit_laundry_transactions(attrs \\ %{}) do
+    Repo.all(compose_unit_laundry_list_query(attrs))
   end
 
   @doc """
@@ -197,8 +262,6 @@ defmodule LaundryManager.Laundry do
   def change_unit_laundry_transaction(%UnitLaundryTransaction{} = unit_laundry_transaction, attrs \\ %{}) do
     UnitLaundryTransaction.changeset(unit_laundry_transaction, attrs)
   end
-
-  alias LaundryManager.Laundry.LaundryType
 
   @doc """
   Returns the list of laundry_types.

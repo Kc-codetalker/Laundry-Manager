@@ -6,8 +6,8 @@ defmodule LaundryManagerWeb.KilogramLaundryTransactionController do
 
   action_fallback LaundryManagerWeb.FallbackController
 
-  def index(conn, _params) do
-    kilogram_laundry_transactions = Laundry.list_kilogram_laundry_transactions()
+  def index(conn, filter_params) do
+    kilogram_laundry_transactions = Laundry.list_kilogram_laundry_transactions(filter_params)
     render(conn, "index.json", kilogram_laundry_transactions: kilogram_laundry_transactions)
   end
 

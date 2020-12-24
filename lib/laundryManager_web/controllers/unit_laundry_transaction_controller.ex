@@ -6,8 +6,8 @@ defmodule LaundryManagerWeb.UnitLaundryTransactionController do
 
   action_fallback LaundryManagerWeb.FallbackController
 
-  def index(conn, _params) do
-    unit_laundry_transactions = Laundry.list_unit_laundry_transactions()
+  def index(conn, filter_params) do
+    unit_laundry_transactions = Laundry.list_unit_laundry_transactions(filter_params)
     render(conn, "index.json", unit_laundry_transactions: unit_laundry_transactions)
   end
 
