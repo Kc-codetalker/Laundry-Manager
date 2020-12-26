@@ -28,6 +28,11 @@ defmodule LaundryManagerWeb.Router do
       resources "/unit", UnitLaundryTransactionController, except: [:edit, :new]
       resources "/types", LaundryTypeController, except: [:edit, :new]
     end
+    scope "/statistic" do
+      get "/kilogram", StatisticLaundryTransactionController, :kilogramStatistic
+      get "/unit", StatisticLaundryTransactionController, :unitStatistic
+      get "/types", StatisticLaundryTransactionController, :typeStatistic
+    end
   end
 
   # Enables LiveDashboard only for development
