@@ -31,7 +31,6 @@ defmodule LaundryManagerWeb.Router do
     scope "/statistic" do
       get "/kilogram", StatisticLaundryTransactionController, :kilogramStatistic
       get "/unit", StatisticLaundryTransactionController, :unitStatistic
-      get "/types", StatisticLaundryTransactionController, :typeStatistic
     end
   end
 

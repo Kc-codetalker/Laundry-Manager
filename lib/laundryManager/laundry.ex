@@ -356,4 +356,19 @@ defmodule LaundryManager.Laundry do
   def change_laundry_type(%LaundryType{} = laundry_type, attrs \\ %{}) do
     LaundryType.changeset(laundry_type, attrs)
   end
+
+  def get_statistic_kilogram_laundry_transactions(startDate,endDate) do
+    base_query = from t in KilogramLaundryTransaction, 
+                  where: t.checkInDate >= ^startDate and t.checkInDate <= ^endDate,
+                  select: %{mean: avg(t.weight), totalLaundry: count(), totalSpend: sum(t.pricePerWeight*t.weight)}
+    Repo.one(base_query)
+  end
+
+  def get_statistic_unit_laundry_transactions(startDate,endDate) do
+    base_query = from t in UnitLaundryTransaction, 
+                  where: t.checkInDate >= ^startDate and t.checkInDate <= ^endDate,
+                  select: %{mean: avg(t.numPieces), totalLaundry: count(), totalSpend: sum(t.pricePerPiece*t.numPieces)}
+    Repo.one(base_query)
+  end
+  
 end
