@@ -364,11 +364,25 @@ defmodule LaundryManager.Laundry do
     Repo.one(base_query)
   end
 
+  def get_data_kilogram_laundry_transactions(startDate,endDate) do
+    base_query = from t in KilogramLaundryTransaction, 
+                  where: t.checkInDate >= ^startDate and t.checkInDate <= ^endDate,
+                  select: %{id: t.id, userId: t.userId, laundryTypeName: t.laundryTypeName, weight: t.weight, pricePerWeight: t.pricePerWeight, description: t.description, checkInDate: t.checkInDate, checkOutDate: t.checkOutDate}
+    Repo.all(base_query)
+  end
+
   def get_statistic_unit_laundry_transactions(startDate,endDate) do
     base_query = from t in UnitLaundryTransaction, 
                   where: t.checkInDate >= ^startDate and t.checkInDate <= ^endDate,
                   select: %{mean: avg(t.numPieces), totalLaundry: count(), totalSpend: sum(t.pricePerPiece*t.numPieces)}
     Repo.one(base_query)
+  end
+
+  def get_data_unit_laundry_transactions(startDate,endDate) do
+    base_query = from t in UnitLaundryTransaction, 
+                  where: t.checkInDate >= ^startDate and t.checkInDate <= ^endDate,
+                  select: %{id: t.id, userId: t.userId, laundryTypeName: t.laundryTypeName, numPieces: t.numPieces, pricePerPiece: t.pricePerPiece, description: t.description, checkInDate: t.checkInDate, checkOutDate: t.checkOutDate}
+    Repo.all(base_query)
   end
   
 end
