@@ -13,59 +13,60 @@ defmodule LaundryManager.Laundry do
 
   defp apply_common_list_filters(query, params) do
     query
-    |> add_filter_to_list_query(params, "checkInStartDate")
-    |> add_filter_to_list_query(params, "checkInEndDate")
-    |> add_filter_to_list_query(params, "checkOutStartDate")
-    |> add_filter_to_list_query(params, "checkOutEndDate")
-    |> add_filter_to_list_query(params, "laundryTypeName")
+    |> add_filter_to_list_query(params, :checkInStartDate)
+    |> add_filter_to_list_query(params, :checkInEndDate)
+    |> add_filter_to_list_query(params, :checkOutStartDate)
+    |> add_filter_to_list_query(params, :checkOutEndDate)
+    |> add_filter_to_list_query(params, :laundryTypeName)
   end
 
   defp compose_kilo_laundry_list_query(params) do
     base_query = from t in KilogramLaundryTransaction
     apply_common_list_filters(base_query, params)
-    |> add_filter_to_list_query(params, "minWeight")
-    |> add_filter_to_list_query(params, "maxWeight")
-    |> add_filter_to_list_query(params, "minPricePerWeight")
-    |> add_filter_to_list_query(params, "maxPricePerWeight")
+    |> add_filter_to_list_query(params, :minWeight)
+    |> add_filter_to_list_query(params, :maxWeight)
+    |> add_filter_to_list_query(params, :minPricePerWeight)
+    |> add_filter_to_list_query(params, :maxPricePerWeight)
   end
 
   defp compose_unit_laundry_list_query(params) do
     base_query = from t in UnitLaundryTransaction
     apply_common_list_filters(base_query, params)
-    |> add_filter_to_list_query(params, "minPieces")
-    |> add_filter_to_list_query(params, "maxPieces")
-    |> add_filter_to_list_query(params, "minPricePerPiece")
-    |> add_filter_to_list_query(params, "maxPricePerPiece")
+    |> add_filter_to_list_query(params, :minPieces)
+    |> add_filter_to_list_query(params, :maxPieces)
+    |> add_filter_to_list_query(params, :minPricePerPiece)
+    |> add_filter_to_list_query(params, :maxPricePerPiece)
   end
 
   defp add_filter_to_list_query(query, params, filter_name) do
-    with {:ok, filter_value} <- Map.fetch(params, filter_name) do
+    filter_name_str = Atom.to_string(filter_name)
+    with {:ok, filter_value} <- Map.fetch(params, filter_name_str) do
       case filter_name do
-        "checkInStartDate" ->
+        :checkInStartDate ->
           from t in query, where: t.checkInDate >= ^filter_value
-        "checkInEndDate" ->
+        :checkInEndDate ->
           from t in query, where: t.checkInDate <= ^filter_value
-        "checkOutStartDate" ->
+        :checkOutStartDate ->
           from t in query, where: t.checkOutDate >= ^filter_value
-        "checkOutEndDate" ->
+        :checkOutEndDate ->
           from t in query, where: t.checkOutDate <= ^filter_value
-        "laundryTypeName" ->
+        :laundryTypeName ->
           from t in query, where: t.laundryTypeName == ^filter_value
-        "minPricePerWeight" ->
+        :minPricePerWeight ->
           from t in query, where: t.pricePerWeight >= ^filter_value
-        "maxPricePerWeight" ->
+        :maxPricePerWeight ->
           from t in query, where: t.pricePerWeight <= ^filter_value
-        "minWeight" ->
+        :minWeight ->
           from t in query, where: t.weight >= ^filter_value
-        "maxWeight" ->
+        :maxWeight ->
           from t in query, where: t.weight <= ^filter_value
-        "minPricePerPiece" ->
+        :minPricePerPiece ->
           from t in query, where: t.pricePerPiece >= ^filter_value
-        "maxPricePerPiece" ->
+        :maxPricePerPiece ->
           from t in query, where: t.pricePerPiece <= ^filter_value
-        "minPieces" ->
+        :minPieces ->
           from t in query, where: t.numPieces >= ^filter_value
-        "maxPieces" ->
+        :maxPieces ->
           from t in query, where: t.numPieces <= ^filter_value
         _ ->
           query
@@ -358,31 +359,31 @@ defmodule LaundryManager.Laundry do
   end
 
   def get_statistic_kilogram_laundry_transactions(startDate,endDate) do
-    base_query = from t in KilogramLaundryTransaction, 
+    base_query = from t in KilogramLaundryTransaction,
                   where: t.checkInDate >= ^startDate and t.checkInDate <= ^endDate,
                   select: %{mean: avg(t.weight), totalLaundry: count(), totalSpend: sum(t.pricePerWeight*t.weight)}
     Repo.one(base_query)
   end
 
   def get_data_kilogram_laundry_transactions(startDate,endDate) do
-    base_query = from t in KilogramLaundryTransaction, 
+    base_query = from t in KilogramLaundryTransaction,
                   where: t.checkInDate >= ^startDate and t.checkInDate <= ^endDate,
                   select: %{id: t.id, userId: t.userId, laundryTypeName: t.laundryTypeName, weight: t.weight, pricePerWeight: t.pricePerWeight, description: t.description, checkInDate: t.checkInDate, checkOutDate: t.checkOutDate}
     Repo.all(base_query)
   end
 
   def get_statistic_unit_laundry_transactions(startDate,endDate) do
-    base_query = from t in UnitLaundryTransaction, 
+    base_query = from t in UnitLaundryTransaction,
                   where: t.checkInDate >= ^startDate and t.checkInDate <= ^endDate,
                   select: %{mean: avg(t.numPieces), totalLaundry: count(), totalSpend: sum(t.pricePerPiece*t.numPieces)}
     Repo.one(base_query)
   end
 
   def get_data_unit_laundry_transactions(startDate,endDate) do
-    base_query = from t in UnitLaundryTransaction, 
+    base_query = from t in UnitLaundryTransaction,
                   where: t.checkInDate >= ^startDate and t.checkInDate <= ^endDate,
                   select: %{id: t.id, userId: t.userId, laundryTypeName: t.laundryTypeName, numPieces: t.numPieces, pricePerPiece: t.pricePerPiece, description: t.description, checkInDate: t.checkInDate, checkOutDate: t.checkOutDate}
     Repo.all(base_query)
   end
-  
+
 end
