@@ -10,7 +10,7 @@ defmodule LaundryManagerWeb.Router do
   end
 
   pipeline :api do
-    plug CORSPlug, origin: "*"
+    plug CORSPlug, origin: "*", method: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
     plug :accepts, ["json"]
   end
 
