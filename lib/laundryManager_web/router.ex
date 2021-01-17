@@ -28,6 +28,14 @@ defmodule LaundryManagerWeb.Router do
       resources "/kilogram", KilogramLaundryTransactionController, except: [:edit, :new]
       resources "/unit", UnitLaundryTransactionController, except: [:edit, :new]
       resources "/types", LaundryTypeController, except: [:edit, :new]
+
+      # Experimental, to overcome DELETE CORS at React FE
+      get "/kilogram/delete/:id", KilogramLaundryTransactionController, :delete
+      post "/kilogram/delete/:id", KilogramLaundryTransactionController, :delete
+      get "/unit/delete/:id", UnitLaundryTransactionController, :delete
+      post "/unit/delete/:id", UnitLaundryTransactionController, :delete
+      get "/types/delete/:id", LaundryTypeController, :delete
+      post "/types/delete/:id", LaundryTypeController, :delete
     end
     scope "/statistic" do
       get "/kilogram", StatisticLaundryTransactionController, :kilogramStatistic
